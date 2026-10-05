@@ -1,0 +1,752 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Sous Shelf</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Special+Elite&display=swap"
+        />
+        <style>
+            :root {
+                --ink: #2a1a10;
+                --ink-soft: #2e1b0d;
+                --accent: #8a3315;
+                --printed-red: rgba(160, 62, 48, 0.75);
+                /* One ruled line every 30px. Every row of text on a card is 30px tall so it sits on a line. */
+                --rules: repeating-linear-gradient(
+                    to bottom,
+                    transparent 0px,
+                    transparent 27.5px,
+                    rgba(96, 124, 142, 0.6) 28.5px,
+                    rgba(96, 124, 142, 0.6) 29.5px,
+                    transparent 30px
+                );
+                --typed: "Courier Prime", "Courier New", monospace;
+                --title: "Special Elite", "Courier New", monospace;
+            }
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                margin: 0;
+                color: var(--ink);
+                /* One typewriter face for everything. Only the titles use a different one. */
+                font-family: var(--typed);
+                font-size: 16px;
+                background: #b99866 url(/static/cloth.jpg) repeat;
+            }
+            .page {
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                box-shadow: inset 0 0 260px rgba(45, 26, 8, 0.4);
+            }
+
+            /* --- Header --- */
+            .top {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: baseline;
+                justify-content: space-between;
+                gap: 8px 32px;
+                padding: 20px 32px;
+                border-bottom: 4px double rgba(70, 44, 20, 0.85);
+                background: rgba(96, 64, 30, 0.32);
+                color: var(--ink-soft);
+            }
+            .brand {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: baseline;
+                gap: 4px 20px;
+            }
+            .top h1 {
+                margin: 0;
+                font-family: var(--title);
+                font-weight: 400;
+                font-size: 34px;
+                line-height: 40px;
+                color: var(--ink);
+            }
+            .top p {
+                margin: 0;
+                line-height: 24px;
+            }
+            .top .source {
+                font-size: 14px;
+                line-height: 20px;
+            }
+
+            /* --- Layout: pantry on the left, chat on the right. They stack on a narrow screen. --- */
+            .layout {
+                flex: 1;
+                display: flex;
+                flex-wrap: wrap;
+                align-items: flex-start;
+                gap: 32px;
+                width: 100%;
+                max-width: 1280px;
+                margin: 0 auto;
+                padding: 36px 32px 0;
+            }
+            .chat {
+                flex: 999 1 560px;
+                min-width: 0;
+                max-width: 860px;
+                display: flex;
+                flex-direction: column;
+                min-height: calc(100vh - 140px);
+            }
+            #messages {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 24px;
+                padding-bottom: 24px;
+            }
+
+            /* --- Paper --- */
+            .sheet {
+                background: #efe3c6 url(/static/card.jpg) repeat;
+            }
+            .kraft {
+                background: #c4a06c url(/static/kraft.jpg) repeat;
+            }
+            /* Shadow that follows a torn edge. It goes on a wrapper because the torn shape clips its own shadow. */
+            .lifted {
+                position: relative;
+                filter: drop-shadow(0 1px 1px rgba(45, 26, 8, 0.55)) drop-shadow(0 10px 16px rgba(45, 26, 8, 0.3));
+            }
+            .ruled {
+                background-image: var(--rules);
+                line-height: 30px;
+            }
+
+            /* --- Pantry card --- */
+            .pantry {
+                flex: 1 1 280px;
+                max-width: 340px;
+                transform: rotate(0.8deg);
+            }
+            .pantry .sheet {
+                padding: 34px 22px 30px;
+                box-shadow: inset 0 0 40px rgba(90, 55, 20, 0.3);
+            }
+            .pantry-head {
+                display: flex;
+                align-items: baseline;
+                justify-content: space-between;
+                gap: 12px;
+                padding: 0 4px 14px;
+            }
+            .pantry h2 {
+                margin: 0;
+                font-family: var(--title);
+                font-weight: 400;
+                font-size: 24px;
+                line-height: 30px;
+                letter-spacing: 0.04em;
+                text-transform: uppercase;
+            }
+            .pantry-head span,
+            .pantry p {
+                font-size: 14px;
+                line-height: 20px;
+                color: var(--ink-soft);
+            }
+            #pantry-list {
+                list-style: none;
+                margin: 0;
+                padding: 0 18px 14px;
+                border-top: 2px solid var(--printed-red);
+                font-size: 17px;
+            }
+            .pantry p {
+                margin: 0;
+                padding: 16px 4px 0;
+            }
+            .tape {
+                position: absolute;
+                top: -11px;
+                left: calc(50% - 52px);
+                width: 104px;
+                height: 28px;
+                transform: rotate(3deg);
+                background: rgba(226, 209, 164, 0.8);
+                box-shadow: 0 1px 2px rgba(45, 26, 8, 0.35), inset 0 0 6px rgba(150, 120, 70, 0.35);
+                clip-path: polygon(0 0, 3% 17%, 0 34%, 3% 50%, 0 67%, 3% 84%, 0 100%, 100% 100%, 97% 84%, 100% 67%, 97% 50%, 100% 34%, 97% 17%, 100% 0);
+            }
+
+            /* --- Messages --- */
+            .msg {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                align-items: stretch;
+            }
+            .msg.you {
+                align-items: flex-end;
+            }
+            .msg.short {
+                align-items: flex-start;
+            }
+            .who {
+                font-size: 13px;
+                line-height: 18px;
+                font-weight: 700;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+                color: #33210f;
+            }
+            /* A short reply from Sous Shelf: a small card. */
+            .note {
+                max-width: 100%;
+                transform: rotate(-0.7deg);
+            }
+            .note .ruled {
+                padding: 15px 28px 19px;
+                background-position: 0 15px;
+                border-radius: 4px;
+                font-family: var(--typed);
+                font-size: 16px;
+                white-space: pre-wrap;
+            }
+            .note.waiting .ruled {
+                color: rgba(42, 26, 16, 0.6);
+            }
+            /* What the user typed: a scrap of brown paper. */
+            .scrap {
+                max-width: 620px;
+                transform: rotate(0.5deg);
+            }
+            .scrap .kraft {
+                padding: 16px 22px 20px;
+                box-shadow: inset 0 0 24px rgba(90, 55, 20, 0.3);
+                font-size: 17px;
+                line-height: 26px;
+                color: #23150b;
+                white-space: pre-wrap;
+            }
+
+            /* --- Tool trace --- */
+            .trace {
+                padding: 4px 16px;
+                border: 2px dashed rgba(80, 52, 26, 0.85);
+                border-radius: 3px;
+                background: #e3cfa6 url(/static/paper.jpg) repeat;
+                background-blend-mode: multiply;
+                color: var(--ink-soft);
+            }
+            .trace > summary {
+                cursor: pointer;
+                padding: 10px 0;
+                font-size: 15px;
+                line-height: 24px;
+                font-weight: 700;
+            }
+            .trace ol {
+                margin: 0;
+                padding: 0 0 12px 22px;
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                font-family: var(--typed);
+                font-size: 14px;
+                line-height: 21px;
+            }
+            .trace li summary {
+                cursor: pointer;
+            }
+            .trace pre {
+                margin: 6px 0 4px;
+                padding: 8px 10px;
+                max-height: 260px;
+                overflow: auto;
+                background: rgba(255, 248, 230, 0.55);
+                border: 1px solid rgba(80, 52, 26, 0.4);
+                font-family: var(--typed);
+                font-size: 12.5px;
+                line-height: 18px;
+                white-space: pre-wrap;
+                word-break: break-word;
+            }
+
+            /* --- Recipe card --- */
+            .card {
+                border-radius: 6px;
+                box-shadow: inset 0 0 90px rgba(105, 62, 18, 0.5);
+            }
+            .card-head {
+                padding: 18px 28px 0 34px;
+            }
+            .card-head .strip {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                gap: 0 24px;
+                font-size: 12px;
+                line-height: 20px;
+                font-weight: 700;
+                letter-spacing: 0.14em;
+                text-transform: uppercase;
+                color: #8a3020;
+            }
+            .card-head h2 {
+                margin: 0;
+                padding-top: 2px;
+                min-height: 38px;
+                border-bottom: 2px solid var(--printed-red);
+                font-family: var(--title);
+                font-weight: 400;
+                font-size: 27px;
+                line-height: 38px;
+            }
+            .card-body {
+                padding: 0 28px 38px 34px;
+                font-family: var(--typed);
+                font-size: 16px;
+                overflow-wrap: anywhere;
+            }
+            .card-body.plain {
+                padding-top: 30px;
+            }
+            .card-body .gap {
+                height: 30px;
+            }
+            .card-body h3 {
+                margin: 0;
+                font-size: 14px;
+                line-height: 30px;
+                font-weight: 700;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: #7a2b0f;
+            }
+            /* Ingredients and nutrition figures sit in two columns. */
+            .card-body .cols {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                column-gap: 32px;
+            }
+            /* A numbered step or a bullet: wrapped lines tuck under the text, not under the number. */
+            .card-body .step {
+                padding-left: 3ch;
+                text-indent: -3ch;
+            }
+            .card-body .bullet {
+                padding-left: 2ch;
+                text-indent: -2ch;
+            }
+            .macro-bar {
+                display: flex;
+                align-items: center;
+                height: 30px;
+            }
+            .macro-bar > div {
+                display: flex;
+                gap: 2px;
+                width: 100%;
+                height: 12px;
+                border-radius: 2px;
+                overflow: hidden;
+                opacity: 0.9;
+            }
+            .macro-legend {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0 28px;
+            }
+            .macro-legend div {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                height: 30px;
+            }
+            .macro-legend i {
+                width: 12px;
+                height: 12px;
+                border-radius: 2px;
+            }
+            .protein {
+                background: var(--accent);
+            }
+            .fat {
+                background: #c08f2f;
+            }
+            .carbs {
+                background: #5f6f3a;
+            }
+
+            /* --- Message box: stays at the bottom of the window --- */
+            .ask {
+                position: sticky;
+                bottom: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                margin: 0 -12px;
+                padding: 12px 12px 20px;
+                background: #b99866 url(/static/cloth.jpg) repeat;
+                box-shadow: 0 -10px 14px -10px rgba(45, 26, 8, 0.45);
+            }
+            .ask label {
+                font-size: 14px;
+                line-height: 20px;
+                font-weight: 700;
+                color: var(--ink-soft);
+            }
+            .ask .row {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+            .ask input {
+                flex: 1 1 280px;
+                min-width: 0;
+                height: 52px;
+                padding: 0 18px;
+                border: 2px solid rgba(70, 44, 20, 0.9);
+                border-radius: 3px;
+                background: #efe3c6;
+                box-shadow: inset 0 2px 6px rgba(90, 55, 20, 0.25);
+                font: inherit;
+                font-size: 17px;
+                color: var(--ink);
+            }
+            .ask button {
+                height: 52px;
+                padding: 0 28px;
+                border: 2px solid #4a1a08;
+                border-radius: 3px;
+                background: var(--accent);
+                box-shadow: 0 2px 0 #4a1a08;
+                color: #fff6e6;
+                font: inherit;
+                font-size: 17px;
+                font-weight: 700;
+                cursor: pointer;
+            }
+            .ask button:disabled {
+                opacity: 0.5;
+                cursor: default;
+            }
+            .ask input:focus-visible,
+            .ask button:focus-visible,
+            summary:focus-visible {
+                outline: 3px solid #1f4b6e;
+                outline-offset: 2px;
+            }
+
+            /* On a phone the two-column lists become one column so lines do not break mid-word. */
+            @media (max-width: 600px) {
+                .card-body .cols {
+                    grid-template-columns: minmax(0, 1fr);
+                }
+            }
+
+            /* On a wide screen the pantry stays in view while the chat scrolls. */
+            @media (min-width: 960px) {
+                .pantry {
+                    position: sticky;
+                    top: 28px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="page">
+            <header class="top">
+                <div class="brand">
+                    <h1>Sous Shelf</h1>
+                    <p>At your service!</p>
+                </div>
+                <p class="source">Nutrition from USDA FoodData Central</p>
+            </header>
+
+            <div class="layout">
+                <aside class="pantry lifted" aria-label="Pantry">
+                    <div class="sheet torn">
+                        <div class="pantry-head">
+                            <h2>Pantry</h2>
+                            <span id="pantry-count"></span>
+                        </div>
+                        <ul id="pantry-list" class="ruled"></ul>
+                        <p>
+                            Your shelf starts with salt and black pepper. Tell Sous Shelf what else you have and it
+                            goes in here.
+                        </p>
+                    </div>
+                    <span class="tape" aria-hidden="true"></span>
+                </aside>
+
+                <main class="chat">
+                    <div id="messages" aria-live="polite"></div>
+                    <form class="ask" id="ask-form" aria-label="Send a message">
+                        <label for="user-input">Tell Sous Shelf what you have</label>
+                        <div class="row">
+                            <input
+                                type="text"
+                                id="user-input"
+                                placeholder="e.g. chicken thighs, broccoli, soy sauce and garlic"
+                                autocomplete="off"
+                            />
+                            <button type="submit" id="send-btn">Send</button>
+                        </div>
+                    </form>
+                </main>
+            </div>
+        </div>
+
+        <script>
+            const messages = document.getElementById("messages");
+            const userInput = document.getElementById("user-input");
+            const sendBtn = document.getElementById("send-btn");
+            const pantryList = document.getElementById("pantry-list");
+            const pantryCount = document.getElementById("pantry-count");
+            let sessionId = null;
+
+            // --- Small helpers ---
+
+            // Build an element. Text always goes in as text, never as HTML, so nothing the model says can run.
+            function el(tag, className, ...children) {
+                const node = document.createElement(tag);
+                if (className) node.className = className;
+                node.append(...children);
+                return node;
+            }
+
+            // Give a piece of paper an uneven, hand-torn outline. Every piece comes out a little different.
+            function tear(node, roughness = 4, steps = 28) {
+                const jag = () => (Math.random() * roughness).toFixed(1) + "px";
+                const at = (i) => ((i * 100) / steps).toFixed(1) + "%";
+                const points = [];
+                for (let i = 0; i <= steps; i++) points.push(`${at(i)} ${jag()}`); // top
+                for (let i = 1; i < steps; i++) points.push(`calc(100% - ${jag()}) ${at(i)}`); // right
+                for (let i = steps; i >= 0; i--) points.push(`${at(i)} calc(100% - ${jag()})`); // bottom
+                for (let i = steps - 1; i > 0; i--) points.push(`${jag()} ${at(i)}`); // left
+                node.style.clipPath = `polygon(${points.join(", ")})`;
+            }
+
+            // Tool results arrive as JSON text.
+            function parse(json) {
+                try {
+                    return JSON.parse(json);
+                } catch {
+                    return {};
+                }
+            }
+
+            // --- Pantry ---
+
+            async function loadPantry() {
+                const query = sessionId ? "?session_id=" + encodeURIComponent(sessionId) : "";
+                const data = await fetch("/pantry" + query).then((res) => res.json());
+                pantryList.replaceChildren(...data.pantry.map((item) => el("li", "", item)));
+                pantryCount.textContent = data.pantry.length + (data.pantry.length === 1 ? " item" : " items");
+            }
+
+            // --- Messages ---
+
+            function addMessage(who, kind, ...parts) {
+                const section = el("section", "msg " + kind, el("div", "who", who), ...parts);
+                messages.appendChild(section);
+                return section;
+            }
+
+            // A short line from Sous Shelf on a small card.
+            function note(text, waiting = false) {
+                const paper = el("div", "sheet torn", el("div", "ruled", text));
+                tear(paper, 3, 16);
+                return el("div", "note lifted" + (waiting ? " waiting" : ""), paper);
+            }
+
+            function addUserMessage(text) {
+                const paper = el("div", "kraft torn", text);
+                tear(paper, 5, 26);
+                addMessage("You", "you", el("div", "scrap lifted", paper));
+            }
+
+            // --- Tool trace: one line per tool call, with the raw arguments and result one click away ---
+
+            function summarize(call) {
+                const result = parse(call.result);
+                if (result.error) return "could not finish: " + result.error;
+                if (call.name === "update_pantry") {
+                    const did = [];
+                    if (result.added?.length) did.push("added " + result.added.join(", "));
+                    if (result.removed?.length) did.push("removed " + result.removed.join(", "));
+                    return did.join("; ") || "read the shelf";
+                }
+                if (call.name === "suggest_from_pantry") {
+                    const sides = (result.vegetables || []).join(", ");
+                    // A dish with no protein is described by its vegetables alone.
+                    const dish = result.protein ? result.protein + (sides ? " with " + sides : "") : sides + ", no protein";
+                    // Either a list of dishes to choose from, or the one recipe the user picked.
+                    if (result.options) return `${dish}, offered ${result.options.length} options`;
+                    return `${dish}, returned ${result.recipes?.[0]?.name || "a recipe"}`;
+                }
+                if (call.name === "total_meal_macros") {
+                    const items = (result.items || []).map((item) => `${item.grams_per_serving} g ${item.name}`);
+                    return `${items.join(", ")}, returned ${result.per_serving.kcal} kcal and ${result.per_serving.protein_g} g protein`;
+                }
+                if (call.name === "get_nutrition") {
+                    return `${result.grams} g ${result.name}: ${result.kcal} kcal, ${result.protein_g} g protein`;
+                }
+                return "";
+            }
+
+            function toolTrace(calls) {
+                const rows = calls.map((call) => {
+                    const raw = JSON.stringify(call.args, null, 2) + "\n\n→ " + JSON.stringify(parse(call.result), null, 2);
+                    const line = el("summary", "", el("strong", "", call.name), " " + summarize(call));
+                    return el("li", "", el("details", "", line, el("pre", "", raw)));
+                });
+                const heading = `Sous Shelf used ${calls.length} ${calls.length === 1 ? "tool" : "tools"}`;
+                const trace = el("details", "trace", el("summary", "", heading), el("ol", "", ...rows));
+                trace.open = true;
+                return trace;
+            }
+
+            // --- Recipe card ---
+
+            // If the answer opens with the name of a recipe the tool suggested, that line becomes the card's title.
+            function findRecipe(firstLine, calls) {
+                for (const call of calls) {
+                    if (call.name !== "suggest_from_pantry") continue;
+                    for (const recipe of parse(call.result).recipes || []) {
+                        if (firstLine.toLowerCase().includes(recipe.flavor_base.toLowerCase())) return recipe;
+                    }
+                }
+                return null;
+            }
+
+            // The protein, fat and carbs bar, drawn from what total_meal_macros returned.
+            function macroBar(calls) {
+                const totals = calls.filter((call) => call.name === "total_meal_macros").map((call) => parse(call.result).per_serving).filter(Boolean).pop();
+                if (!totals) return [];
+                const kcal = { protein: totals.protein_g * 4, fat: totals.fat_g * 9, carbs: totals.carbs_g * 4 };
+                const sum = kcal.protein + kcal.fat + kcal.carbs || 1;
+                const share = (key) => Math.round((kcal[key] / sum) * 100);
+                const bar = el("div", "");
+                const legend = el("div", "macro-legend");
+                for (const key of ["protein", "fat", "carbs"]) {
+                    const segment = el("div", key);
+                    segment.style.flex = `${kcal[key]} 1 0`;
+                    bar.appendChild(segment);
+                    const name = key[0].toUpperCase() + key.slice(1);
+                    legend.appendChild(el("div", "", el("i", key), `${name} ${share(key)}% of calories`));
+                }
+                bar.setAttribute("role", "img");
+                bar.setAttribute("aria-label", `Calories by source: protein ${share("protein")} percent, fat ${share("fat")} percent, carbs ${share("carbs")} percent`);
+                return [el("div", "macro-bar", bar), legend];
+            }
+
+            const HEADING = /^(options|ingredients|steps|nutrition per serving|to add more flavor)\s*:?$/i;
+
+            // Lay the answer out on the ruled card, one row per line of text.
+            function recipeCard(text, calls) {
+                const lines = text.trim().split("\n").map((line) => line.trim());
+                const card = el("article", "sheet torn card");
+                const body = el("div", "ruled card-body");
+
+                const recipe = findRecipe(lines[0], calls);
+                if (recipe) {
+                    // "Paprika rub pork chop (bake)" -> the title, with the method moved to the line below.
+                    const name = lines.shift().replace(/^recipe( name)?:\s*/i, "");
+                    const [, title, method] = name.match(/^(.*?)\s*\(([^)]+)\)$/) || [null, name, recipe.method];
+                    const strip = el("div", "strip", el("span", "", "Recipe"), el("span", "", "From the kitchen of Sous Shelf"));
+                    card.appendChild(el("div", "card-head", strip, el("h2", "", title)));
+                    const how = method[0].toUpperCase() + method.slice(1);
+                    while (lines.length && !lines[0]) lines.shift(); // no gap between the title and "Serves N"
+                    if (/^serv/i.test(lines[0] || "")) lines[0] += " · " + how;
+                    else lines.unshift(how);
+                } else {
+                    body.classList.add("plain");
+                }
+
+                let section = "";
+                let columns = null;
+                for (const line of lines) {
+                    if (!line) {
+                        body.appendChild(el("div", "gap"));
+                        columns = null;
+                    } else if (HEADING.test(line)) {
+                        section = line.replace(/:$/, "").toLowerCase();
+                        body.appendChild(el("h3", "", line.replace(/:$/, "")));
+                        if (section.startsWith("nutrition")) body.append(...macroBar(calls));
+                        columns = null;
+                    } else if (/^[-•*]\s+/.test(line)) {
+                        const item = line.replace(/^[-•*]\s+/, "");
+                        if (section === "ingredients" || section.startsWith("nutrition")) {
+                            if (!columns) body.appendChild((columns = el("div", "cols")));
+                            columns.appendChild(el("div", "", item));
+                        } else {
+                            body.appendChild(el("div", "bullet", "- " + item));
+                        }
+                    } else {
+                        columns = null;
+                        body.appendChild(el("div", /^\d+[.)]\s/.test(line) ? "step" : "", line));
+                    }
+                }
+
+                card.appendChild(body);
+                tear(card, 4, 34);
+                return el("div", "lifted", card);
+            }
+
+            // A reply is a small card if it is one short line, and a full recipe card otherwise.
+            function addReply(text, calls) {
+                const short = !text.includes("\n") && text.length < 170;
+                const parts = calls.length ? [toolTrace(calls)] : [];
+                parts.push(short ? note(text) : recipeCard(text, calls));
+                return addMessage("Sous Shelf", short && !calls.length ? "short" : "", ...parts);
+            }
+
+            // --- Sending ---
+
+            async function send(event) {
+                event.preventDefault();
+                const text = userInput.value.trim();
+                if (!text) return;
+
+                userInput.value = "";
+                sendBtn.disabled = true;
+                addUserMessage(text);
+                const waiting = addMessage("Sous Shelf", "short", note("Thinking...", true));
+                waiting.scrollIntoView({ behavior: "smooth", block: "end" });
+
+                let reply;
+                try {
+                    const res = await fetch("/chat", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ message: text, session_id: sessionId }),
+                    });
+                    const data = await res.json();
+                    sessionId = data.session_id;
+                    // Show each tool the harness ran, above Sous Shelf's answer
+                    reply = addReply(data.response, data.tool_calls || []);
+                    loadPantry();
+                } catch (e) {
+                    reply = addMessage("Sous Shelf", "short", note("Error: " + e.message));
+                }
+                waiting.remove();
+                reply.scrollIntoView({ behavior: "smooth", block: "start" });
+                sendBtn.disabled = false;
+                userInput.focus();
+            }
+
+            document.getElementById("ask-form").addEventListener("submit", send);
+            document.querySelectorAll(".pantry .torn").forEach((paper) => tear(paper, 5, 26));
+
+            // Greet the user as soon as the page opens
+            addMessage("Sous Shelf", "short", note("Hi! What do you have to cook with today?"));
+            loadPantry();
+            userInput.focus();
+        </script>
+    </body>
+</html>
