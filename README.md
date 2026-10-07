@@ -10,7 +10,7 @@ Built onto **gemini-web-tool-calling**, deployed on Cloud Run
 
 Sous Shelf will add seasonings (garlic powder, chili powder, lemon juice) to pantry, then provide recipes using chicken wings and broccoli. It will also provide additional seasoning options for additional recipes.
 
-**Utilizes update_pantry, suggest_from_pantry**
+*Utilizes update_pantry, suggest_from_pantry*
 
 Picking one of the provided recipes will generate the full recipe, including ingredient portions, steps, nutrition data, and additional suggestions for improved flavor. Instead...
 
@@ -20,7 +20,7 @@ Sous Shelf will rethink and give options for recipes using shrimp, along with th
 
 Select any, which will provide a recipe. 
 
-**Utilizes update_pantry, suggest_from_pantry, total_meal_macros**
+*Utilizes update_pantry, suggest_from_pantry, total_meal_macros*
 
 Then give the third prompt:
 
@@ -28,7 +28,7 @@ Then give the third prompt:
 
 The lemon juice and garlic powder will be removed from the pantry and no longer assumed available for future recipes. Then, Sous Shelf will give the nutritional value of shrimp and wings across 8 metrics.
 
-**Utilizes update_pantry, get_nutrition**
+*Utilizes update_pantry, get_nutrition*
 
 ## Tools Created - tools.py
 
