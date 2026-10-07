@@ -1,4 +1,4 @@
-Sous Shelf - your personal cooking assistant
+# Sous Shelf - your personal cooking assistant
 
 Sous Shelf is a chat agent that turns your available kitchen ingredients into high-protein, low added-fat meals. USDA provides access to nutrition data, allowing for each of the components to be calculated immediately.
 
