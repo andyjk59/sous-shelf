@@ -68,7 +68,7 @@ Calculates nutritional value of chosen recipes
 * Arguments: **items** (food and per-serving weight), **servings**, **added_fat_g**, **protein_target_g**
 * Conducts USDA lookups and adds up all ingredients used in a recipe
 * Returns calories, protein, fat, carbs, saturated fat, sugars, fiber, and sodium, scaled to serving size of the dish
-* **protein_target_g** raises main protein's weight until protein target is met (also applies additional protein through vegetables)
+* **protein_target_g** raises main protein's weight until protein target is met (including protein supplied from vegetables)
 
 ## Data Included
 
@@ -127,4 +127,4 @@ Calculates nutritional value of chosen recipes
 * **.python-version** pins Python 3.13
 * **pyproject.toml** and **uv.lock** dependencies
 * **.env.example** shows **FDC_API_KEY**, real **.env** is git-ignored
-On Cloud Run, **FDC_API_KEY** is set as environment variable
+* On Cloud Run, **FDC_API_KEY** is set as environment variable
